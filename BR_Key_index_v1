@@ -1,0 +1,88 @@
+[LOG_CLEAR]; // limpar o ficheiro
+$id_entidade_upper = [%LCS_APP1_10000175CMB00002%][GET]; 
+$id_entidade_lower = [%LCS_APP1_10000175CMB00004%][GET];
+
+[FOPEN]; // cria um ficheiro para escrita numa pasta no datacenter
+[FWRITE] = $id_entidade_upper;
+[FWRITE] = $id_entidade_lower;
+
+if ($id_entidade_upper==$id_entidade_lower or $id_entidade_upper==NULL or $id_entidade_lower==NULL)
+{
+    [#FALSE#]
+}
+else
+{
+
+    $sql_upper="select ent.id as id, ent.name as name, ent.key_index from iberia.lcs_wyipi_t_entidade ent where ent.id=$id_entidade_upper";
+    $sql_lower="select ent.id as id, ent.name as name, ent.key_index from iberia.lcs_wyipi_t_entidade ent where ent.id=$id_entidade_lower";
+
+
+    $temp_upper = $this->query($sql_upper);
+    $temp_lower = $this->query($sql_lower);
+    $lineArr = array();
+
+//******** Start the intern key string Struct *********
+    if ($temp_upper[0]['key_index']==NULL)
+    {
+
+        $n_char=$temp_upper[0]['id'];
+        $n_upper= strval($n_char); //Converte valor em string
+        //$n_char_l=$temp_lower[0]['id'];
+        //$n_lower= strval($n_char_l); //Converte valor em string
+        [FWRITE] = $n_upper;
+        [FWRITE] = strlen($n_upper);
+    
+        if (strlen($n_upper)==1) //Testa se o número de digitos é 1
+            {
+                $key_upper="#1:00".$n_char."#";
+               // if (strlen($n_lower)==1)
+                //     {
+              //          $key_upper.="2:00".$n_char_l."#";
+              //       }
+              //  if (strlen($n_lower)==2)
+              //       {
+              //          $key_upper.="2:0".$n_char_l."#";
+              //       }
+            }
+        if (strlen($n_upper)==2) //Testa se o número de digitos é 2
+            {
+                $key_upper="#1:0".$n_char."#";
+            }
+                [FWRITE] = $key_upper;
+
+          //Declaracao de variavel Global  
+           [STORAGE][kup] = $key_upper;
+           $kup = [STORAGE][kup];
+           [FWRITE] =$kup;
+
+           [STORAGE][iup] = $id_entidade_upper;
+           $iup = [STORAGE][iup];
+           [FWRITE] =$iup;
+           [STORAGE][ilo] = $id_entidade_lower;
+           $ilo = [STORAGE][ilo];
+           [FWRITE] =$ilo;
+    }
+
+   $A = $temp_upper[0]["id"];
+   $B = $temp_upper[0]['name'];
+   $C = $temp_lower[0]['id'];
+   $D = $temp_lower[0]['name'];
+
+    [FWRITE] = $A;
+    [FWRITE] = $B;
+    [FWRITE] = $C;
+    [FWRITE] = $D;
+
+   
+        unset($lineObj);
+        $lineObj['upper_id'] = $id_entidade_upper;
+        $lineObj['name_upper'] = $temp_upper[0]["name"];
+        $lineObj['lower_id'] = $id_entidade_lower;
+        $lineObj['name_lower'] = $temp_lower[0]['name'];
+        //Adicionar linha ao array de linhas 
+        $lineArr[] = $lineObj;
+
+[%LCS_APP1_10000175DTG00001%][DEL_ALL_LINE];
+[%LCS_APP1_10000175DTG00001%][ADD_LINE_VALUE] = $lineArr;
+[#TRUE#]
+}
