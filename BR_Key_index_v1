@@ -27,33 +27,40 @@ else
 
         $n_char=$temp_upper[0]['id'];
         $n_upper= strval($n_char); //Converte valor em string
-        //$n_char_l=$temp_lower[0]['id'];
-        //$n_lower= strval($n_char_l); //Converte valor em string
+        $n_char_l=$temp_lower[0]['id'];
+        $n_lower= strval($n_char_l); //Converte valor em string
         [FWRITE] = $n_upper;
         [FWRITE] = strlen($n_upper);
-    
+
+        // Preencher a chave interna da Entidade UPPER
         if (strlen($n_upper)==1) //Testa se o número de digitos é 1
             {
                 $key_upper="#1:00".$n_char."#";
-               // if (strlen($n_lower)==1)
-                //     {
-              //          $key_upper.="2:00".$n_char_l."#";
-              //       }
-              //  if (strlen($n_lower)==2)
-              //       {
-              //          $key_upper.="2:0".$n_char_l."#";
-              //       }
             }
         if (strlen($n_upper)==2) //Testa se o número de digitos é 2
             {
                 $key_upper="#1:0".$n_char."#";
             }
-                [FWRITE] = $key_upper;
+
+        // Preencher a chave interna da Entidade LOWER
+        if (strlen($n_lower)==1)
+            {
+                $key_lower=$key_upper."2:00".$n_char_l."#";
+            }
+        if (strlen($n_lower)==2)
+            {
+                $key_lower=$key_upper."2:0".$n_char_l."#";
+            }
+        
+        [FWRITE] = $key_upper;
 
           //Declaracao de variavel Global  
            [STORAGE][kup] = $key_upper;
            $kup = [STORAGE][kup];
            [FWRITE] =$kup;
+           [STORAGE][klo] = $key_lower;
+           $klo = [STORAGE][klo];
+           [FWRITE] =$klo;
 
            [STORAGE][iup] = $id_entidade_upper;
            $iup = [STORAGE][iup];
