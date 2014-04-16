@@ -1,0 +1,28 @@
+$kup = [STORAGE][kup];
+$iup = [STORAGE][iup];
+$klo = [STORAGE][klo];
+$ilo = [STORAGE][ilo];
+
+[TRANSACTION][START];
+
+$sql="Update iberia.lcs_wyipi_t_entidade SET key_index='$kup' WHERE id=$iup";
+
+$sqll="Update iberia.lcs_wyipi_t_entidade SET key_index='$klo' WHERE id=$ilo";
+ 
+//noquery é para qd não há retorno de dados
+//Atualizar a keyindex das entidades Pai e Filho
+$res = $this->noquery($sql);
+$res_ = $this->noquery($sqll);
+
+$failed = [TRANSACTION][FAILED];
+
+if($failed)
+{
+
+    [STATUSBAR][ERROR][5000] = 'Erro a gravar dados, por favor repita operação';
+    [#FALSE#]
+
+}
+[TRANSACTION][COMPLETE];
+
+[#TRUE#]
