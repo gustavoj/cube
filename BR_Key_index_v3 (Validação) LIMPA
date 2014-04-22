@@ -1,0 +1,104 @@
+$id_entidade_upper = [%LCS_APP1_10000175CMB00002%][GET]; 
+$id_entidade_lower = [%LCS_APP1_10000175CMB00004%][GET];
+
+if ($id_entidade_upper==$id_entidade_lower or $id_entidade_upper==NULL or $id_entidade_lower==NULL)
+{
+    [#FALSE#]
+}
+else
+{
+
+    $sql_upper="select ent.id as id, ent.name as name, ent.key_index from iberia.lcs_wyipi_t_entidade ent where ent.id=$id_entidade_upper";
+    $sql_lower="select ent.id as id, ent.name as name, ent.key_index from iberia.lcs_wyipi_t_entidade ent where ent.id=$id_entidade_lower";
+
+    $temp_upper = $this->query($sql_upper);
+    $temp_lower = $this->query($sql_lower);
+    $lineArr = array();
+
+//******** Start the intern key string Struct *********
+    $n_char=$temp_upper[0]['id'];
+    $n_upper= strval($n_char); //Converte valor em string
+    $n_char_l=$temp_lower[0]['id'];
+    $n_lower= strval($n_char_l); //Converte valor em string
+
+    if ($temp_upper[0]['key_index']==NULL)
+    {
+        // Preencher a chave interna da Entidade UPPER
+        if (strlen($n_upper)==1) //Testa se o número de digitos é 1
+            {
+                $key_upper="#1:00".$n_char."#";
+            }
+        if (strlen($n_upper)==2) //Testa se o número de digitos é 2
+            {
+                $key_upper="#1:0".$n_char."#";
+            }
+
+        // Preencher a chave interna da Entidade LOWER
+        if (strlen($n_lower)==1)
+            {
+                $key_lower=$key_upper."2:00".$n_char_l."#";
+            }
+        if (strlen($n_lower)==2)
+            {
+                $key_lower=$key_upper."2:0".$n_char_l."#";
+            }
+        
+
+          //Declaracao de variavel Global  
+           [STORAGE][kup] = $key_upper;
+           $kup = [STORAGE][kup];
+           [STORAGE][klo] = $key_lower;
+           $klo = [STORAGE][klo];
+
+           [STORAGE][iup] = $id_entidade_upper;
+           $iup = [STORAGE][iup];
+           [STORAGE][ilo] = $id_entidade_lower;
+           $ilo = [STORAGE][ilo];
+
+    }
+    else
+     {
+         $n_caracteres_up=strlen($temp_upper[0]['key_index']);
+         
+         $pos_nivel_upper=$n_caracteres_up-6;
+         
+         $nivel_upper = substr($temp_upper[0]['key_index'], $pos_nivel_upper, 1);
+        
+         $novo_n_lower=$nivel_upper+1;
+
+         $key_upper=$temp_upper[0]['key_index'];
+        
+        if (strlen($n_lower)==1)
+            {          
+                $key_lower=$key_upper.$novo_n_lower.":00".$n_char_l."#";
+            }
+        if (strlen($n_lower)==2)
+            {
+                $key_lower=$key_upper.$novo_n_lower.":0".$n_char_l."#";
+            }
+         //Declaracao de variavel Global  
+           [STORAGE][kup] = $temp_upper[0]['key_index'];
+           $kup = [STORAGE][kup];
+           [STORAGE][klo] = $key_lower;
+           $klo = [STORAGE][klo];
+           
+           [STORAGE][iup] = $id_entidade_upper;
+           $iup = [STORAGE][iup];
+           [STORAGE][ilo] = $id_entidade_lower;
+           $ilo = [STORAGE][ilo];
+           
+     }
+
+   
+        unset($lineObj);
+        $lineObj['upper_id'] = $id_entidade_upper;
+        $lineObj['name_upper'] = $temp_upper[0]["name"];
+        $lineObj['lower_id'] = $id_entidade_lower;
+        $lineObj['name_lower'] = $temp_lower[0]['name'];
+        //Adicionar linha ao array de linhas 
+        $lineArr[] = $lineObj;
+
+[%LCS_APP1_10000175DTG00001%][DEL_ALL_LINE];
+[%LCS_APP1_10000175DTG00001%][ADD_LINE_VALUE] = $lineArr;
+[#TRUE#]
+}
